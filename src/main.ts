@@ -25,8 +25,14 @@ export type TravelRequestOutput = {
 };
 
 import { ProcessTravelRequestUseCase } from "./application/process-travel-request-use-case.js";
+import { PostgresTravelRequestRepository } from "./infra/repositories/postgres-travel-request-repository.js";
+import { createPgPool } from "./infra/database/pg-client.js";
 
-const processTravelRequestUseCase = new ProcessTravelRequestUseCase();
+const repository = process.env.DATABASE_URL
+  ? new PostgresTravelRequestRepository(createPgPool())
+  : undefined;
+
+const processTravelRequestUseCase = new ProcessTravelRequestUseCase(repository);
 
 export function processTravelRequest(
   input: TravelRequestInput,
