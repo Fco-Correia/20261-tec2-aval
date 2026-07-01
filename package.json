@@ -1,0 +1,26 @@
+{
+  "name": "tec2-final-assessment-base",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:original": "vitest run tests/original",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down -v",
+    "db:init": "tsx scripts/init-database.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "@types/pg": "^8.15.4",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "pg": "^8.16.0"
+  }
+}
