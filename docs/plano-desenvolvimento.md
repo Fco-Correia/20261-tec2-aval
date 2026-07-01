@@ -358,7 +358,7 @@ Cada fase termina com validação antes de avançar.
 
 **Ao concluir:** `### Fase 2 — Domain: cálculos e status (já feito)`.
 
-### Fase 3 — Application + integração
+### Fase 3 — Application + integração (já feito)
 
 **Commits:** 5 e 6 — use case + `main.ts`
 

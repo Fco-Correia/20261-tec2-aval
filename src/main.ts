@@ -24,4 +24,12 @@ export type TravelRequestOutput = {
   warnings: string[];
 };
 
-export { processTravelRequest } from "./original/process-travel-request.js";
+import { ProcessTravelRequestUseCase } from "./application/process-travel-request-use-case.js";
+
+const processTravelRequestUseCase = new ProcessTravelRequestUseCase();
+
+export function processTravelRequest(
+  input: TravelRequestInput,
+): TravelRequestOutput {
+  return processTravelRequestUseCase.execute(input);
+}
