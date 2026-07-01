@@ -372,7 +372,7 @@ Cada fase termina com validação antes de avançar.
 
 **Ao concluir:** `### Fase 3 — Application + integração (já feito)`.
 
-### Fase 4 — Infraestrutura e persistência
+### Fase 4 — Infraestrutura e persistência (já feito)
 
 **Commit:** 7 — `feat: add PostgreSQL travel request persistence`
 
@@ -387,7 +387,7 @@ Cada fase termina com validação antes de avançar.
 
 **Ao concluir:** `### Fase 4 — Infraestrutura e persistência (já feito)`.
 
-### Fase 5 — Testes próprios completos
+### Fase 5 — Testes próprios completos (já feito)
 
 **Commit:** 8 — `test: expand unit tests for application and infrastructure`
 
