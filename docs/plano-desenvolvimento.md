@@ -300,9 +300,9 @@ Cada fase termina com validação antes de avançar.
 - [x] Analisar código legado e regras de negócio
 - [x] Definir arquitetura e componentes
 - [x] Elaborar este plano em `docs/plano-desenvolvimento.md`
-- [ ] Confirmar baseline: `npm run typecheck` e `npm run test:original` passando *(fazer na Fase 0.5a, antes do Commit 2)*
+- [x] Confirmar baseline: `npm run typecheck` e `npm run test:original` passando
 
-### Fase 0.5a — Repo próprio + baseline clonada
+### Fase 0.5a — Repo próprio + baseline clonada (já feito)
 
 **Objetivo:** publicar no **seu** GitHub o projeto **exatamente como veio do clone**, sem nenhum arquivo seu ainda.
 
@@ -315,9 +315,9 @@ Cada fase termina com validação antes de avançar.
 
 **Validação:** repo público no seu GitHub; histórico começa com o projeto-base; `npm run test:original` passa.
 
-**Ao concluir:** `### Fase 0.5a — Repo próprio + baseline clonada (já feito)`.
+**Ao concluir:** `### Fase 0.5a — Repo próprio + baseline clonada (já feito)`. ✓
 
-### Fase 0.5b — Plano no repositório
+### Fase 0.5b — Plano no repositório (já feito)
 
 **Objetivo:** primeiro commit de **trabalho da dupla** — alinhar antes de codar.
 
@@ -327,9 +327,9 @@ Cada fase termina com validação antes de avançar.
 
 **Validação:** plano visível no histórico; baseline confirmada.
 
-**Ao concluir:** `### Fase 0.5b — Plano no repositório (já feito)`.
+**Ao concluir:** `### Fase 0.5b — Plano no repositório (já feito)`. ✓
 
-### Fase 1 — Domain: validação
+### Fase 1 — Domain: validação (já feito)
 
 **Commit:** 3 — `refactor: extract travel date and input validation into domain`
 
@@ -341,7 +341,7 @@ Cada fase termina com validação antes de avançar.
 
 **Validação:** testes próprios de domain passando; `test:original` ainda passa (legado ativo).
 
-**Ao concluir:** `### Fase 1 — Domain: validação (já feito)`.
+**Ao concluir:** `### Fase 1 — Domain: validação (já feito)`. ✓
 
 ### Fase 2 — Domain: cálculos e status
 
