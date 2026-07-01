@@ -343,7 +343,7 @@ Cada fase termina com validação antes de avançar.
 
 **Ao concluir:** `### Fase 1 — Domain: validação (já feito)`. ✓
 
-### Fase 2 — Domain: cálculos e status
+### Fase 2 — Domain: cálculos e status (já feito)
 
 **Commit:** 4 — `refactor: extract pricing, status and travel analysis rules`
 

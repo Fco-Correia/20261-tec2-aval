@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { isValidDate, toUtcTimestamp } from "../../src/domain/travel-date";
+import {
+  calculateInclusiveDays,
+  isValidDate,
+  toUtcTimestamp,
+} from "../../src/domain/travel-date";
 
 describe("isValidDate", () => {
   it("accepts valid YYYY-MM-DD dates", () => {
@@ -34,5 +38,19 @@ describe("toUtcTimestamp", () => {
 
   it("returns equal timestamps for the same date", () => {
     expect(toUtcTimestamp("2026-09-01")).toBe(toUtcTimestamp("2026-09-01"));
+  });
+});
+
+describe("calculateInclusiveDays", () => {
+  it("counts a single day when departure equals return", () => {
+    expect(calculateInclusiveDays("2026-09-01", "2026-09-01")).toBe(1);
+  });
+
+  it("counts days inclusively between departure and return", () => {
+    expect(calculateInclusiveDays("2026-08-10", "2026-08-12")).toBe(3);
+  });
+
+  it("counts inclusive days across a month boundary", () => {
+    expect(calculateInclusiveDays("2026-08-30", "2026-09-02")).toBe(4);
   });
 });
