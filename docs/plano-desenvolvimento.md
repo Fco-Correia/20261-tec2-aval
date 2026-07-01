@@ -409,7 +409,7 @@ Cenários mínimos recomendados:
 
 **Ao concluir:** `### Fase 5 — Testes próprios completos (já feito)`.
 
-### Fase 6 — Documentação e entrega
+### Fase 6 — Documentação e entrega (já feito)
 
 **Commit:** 9 — `docs: update README and add dependency diagram`
 
