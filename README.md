@@ -1,55 +1,54 @@
-# TEC2 — Análise, Testes e Refatoração de Código Legado
+# TEC2 — Legacy Code Analysis, Testing, and Refactoring
 
-Refatoração de um código legado de **processamento de solicitações de viagem institucional**,
-preservando o comportamento observável e reorganizando a solução em camadas
-(domínio, aplicação e infraestrutura), com persistência em PostgreSQL.
+Refactoring of a legacy **institutional travel request processing** codebase while
+preserving observable behavior and reorganizing the solution into layers
+(domain, application, and infrastructure), with PostgreSQL persistence.
 
-O enunciado oficial está em [`docs/tec2-aval.md`](docs/tec2-aval.md). Este README é um guia
-operacional e de decisões técnicas — não substitui o enunciado.
+The official assignment statement is in [`docs/tec2-aval.md`](docs/tec2-aval.md). This README is
+an operational guide and technical decisions reference — it does not replace the assignment
+statement.
 
-## Equipe
+## Team
 
 - **Matheus Araújo Carvalho**
 - **Francisco da Chagas Correia Neto**
 
-## Requisitos
+## Requirements
 
 - Node.js 22
 - npm
-- Docker (apenas para a persistência PostgreSQL)
+- Docker (PostgreSQL persistence only)
 
-## Instalação
+## Setup
 
 ```bash
 npm install
 ```
 
-## Verificação (typecheck e testes)
+## Verification (typecheck and tests)
 
 ```bash
-npm run typecheck     # TypeScript em modo estrito, sem emitir
-npm test              # todos os testes (Vitest)
-npm run test:original # apenas os testes de preservação de comportamento
+npm run typecheck     # strict TypeScript, no emit
+npm test              # all tests (Vitest)
+npm run test:original # behavior preservation tests only
 ```
 
-Os testes de infraestrutura (`tests/infra/`) exigem um banco disponível. Sem a variável
-`DATABASE_URL` definida, eles são **automaticamente pulados** (`skipped`), de modo que
-`npm test` executa com sucesso mesmo sem Docker.
+Infrastructure tests (`tests/infra/`) require an available database. Without `DATABASE_URL`
+set, they are **automatically skipped**, so `npm test` succeeds even without Docker.
 
-## Banco de dados (PostgreSQL)
+## Database (PostgreSQL)
 
-A infraestrutura de banco é fornecida via Docker Compose. A conexão é feita pela variável
-de ambiente `DATABASE_URL`.
+Database infrastructure is provided via Docker Compose. Connection uses the `DATABASE_URL`
+environment variable.
 
 ```bash
-cp .env.example .env      # opcional: mantém a URL no ambiente local
-npm run db:up             # sobe o PostgreSQL (docker compose)
-npm run db:init           # cria a tabela travel_requests (database/init.sql)
-npm run db:down           # derruba o banco e remove o volume
+cp .env.example .env      # optional: keep the URL in your local environment
+npm run db:up             # start PostgreSQL (docker compose)
+npm run db:init           # create the travel_requests table (database/init.sql)
+npm run db:down           # stop the database and remove the volume
 ```
 
-Para executar também os testes de infraestrutura contra o banco real, exporte a URL antes
-de rodar os testes:
+To run infrastructure tests against the real database, export the URL before running tests:
 
 ```bash
 # bash
@@ -61,15 +60,15 @@ $env:DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/travel_reques
 npm test
 ```
 
-Com `DATABASE_URL` definida, cada chamada de `processTravelRequest` também persiste a
-solicitação processada na tabela `travel_requests`.
+With `DATABASE_URL` set, each call to `processTravelRequest` also persists the processed
+request in the `travel_requests` table.
 
-### Conferir registros no banco (terminal)
+### Inspecting records in the database (terminal)
 
-Com o Docker em execução (`npm run db:up`), liste os registros via `psql` no container:
+With Docker running (`npm run db:up`), list records via `psql` inside the container:
 
 ```bash
-# bash — confira o nome do container com: docker ps
+# bash — check the container name with: docker ps
 docker exec -it 20261-tec2-aval-postgres-1 psql -U postgres -d travel_requests \
   -c "SELECT id, status, travel_days, total_amount_in_cents FROM travel_requests;"
 ```
@@ -79,7 +78,7 @@ docker exec -it 20261-tec2-aval-postgres-1 psql -U postgres -d travel_requests \
 docker exec -it 20261-tec2-aval-postgres-1 psql -U postgres -d travel_requests -c "SELECT id, status, travel_days, total_amount_in_cents FROM travel_requests;"
 ```
 
-Fluxo sugerido para validar persistência:
+Suggested flow to validate persistence:
 
 ```powershell
 copy .env.example .env
@@ -90,85 +89,86 @@ npm test
 docker exec -it 20261-tec2-aval-postgres-1 psql -U postgres -d travel_requests -c "SELECT id, status, travel_days, total_amount_in_cents FROM travel_requests;"
 ```
 
-Após `npm test` com `DATABASE_URL`, os testes de infraestrutura deixam linhas de exemplo
-(ids `TR-TEST-*`) na tabela para conferência manual no terminal.
+After `npm test` with `DATABASE_URL`, infrastructure tests leave sample rows (ids
+`TR-TEST-*`) in the table for manual inspection in the terminal.
 
-Para limpar registros de teste localmente:
+To clean up test records locally:
 
 ```sql
 DELETE FROM travel_requests WHERE id LIKE 'TR-TEST%';
 ```
 
-## Arquitetura
+## Architecture
 
 ```text
 src/
-  main.ts                    # contrato público + composição das dependências
-  original/                  # código legado (preservado, intocado)
-  domain/                    # regras de negócio puras (sem I/O)
-    travel-date.ts           #   validação/aritmética de datas
-    travel-validator.ts      #   validação de campos e ordem dos erros
-    travel-pricing.ts        #   diárias, subtotal e total
-    travel-status.ts         #   status e advertências
-    travel-analysis.ts       #   orquestrador de domínio (agrega as regras)
+  main.ts                    # public contract + dependency composition
+  original/                  # legacy code (preserved, untouched)
+  domain/                    # pure business rules (no I/O)
+    travel-date.ts           #   date validation and arithmetic
+    travel-validator.ts      #   field validation and error order
+    travel-pricing.ts        #   daily rates, subtotal, and total
+    travel-status.ts         #   status and warnings
+    travel-analysis.ts       #   domain orchestrator (aggregates rules)
   application/
     ports/
-      travel-request-repository.ts   # interface do repositório (porta)
-    process-travel-request-use-case.ts # caso de uso
+      travel-request-repository.ts   # repository interface (port)
+    process-travel-request-use-case.ts # use case
   infra/
-    database/pg-client.ts            # criação do pool via DATABASE_URL
+    database/pg-client.ts            # pool creation via DATABASE_URL
     repositories/
-      postgres-travel-request-repository.ts # implementação SQL da porta
+      postgres-travel-request-repository.ts # SQL implementation of the port
 ```
 
-A direção das dependências aponta **para dentro**: a infraestrutura depende da porta
-definida na aplicação (inversão de dependência) e o domínio não conhece aplicação, infra,
-`pg`, Docker ou `process.env`. O diagrama completo está em
+Dependencies point **inward**: infrastructure depends on the port defined in application
+(dependency inversion), and the domain does not know about application, infrastructure,
+`pg`, Docker, or `process.env`. The full diagram is in
 [`docs/dependency-diagram.pdf`](docs/dependency-diagram.pdf).
 
-## Decisões técnicas
+## Technical decisions
 
-1. **Assinatura síncrona preservada.** `processTravelRequest(input): TravelRequestOutput`
-   continua síncrona (contrato exigido pelos testes de preservação). A persistência é
-   executada em *fire-and-forget* dentro do caso de uso: o resultado é retornado
-   imediatamente e a gravação ocorre em segundo plano, com tratamento de erro isolado.
-2. **O que é persistido.** Gravamos os dados de entrada mais o resultado da análise
-   (`status`, `travelDays`, valores). Os campos `errors` e `warnings` **não** são
-   persistidos, pois não existem colunas correspondentes na tabela `travel_requests`
-   fornecida — são informações do contrato de saída, não do registro histórico.
-3. **Persistência independente do status.** Toda solicitação processada é gravada
-   (`approved`, `pending-review` ou `rejected`), como histórico da análise. Reprocessar o
-   mesmo `requestId` atualiza o registro (`INSERT ... ON CONFLICT (id) DO UPDATE`).
-4. **Injeção de dependência no `main.ts`.** O repositório PostgreSQL só é criado quando
-   `DATABASE_URL` está definida; caso contrário, o caso de uso roda sem persistência. Isso
-   mantém o contrato público testável sem exigir banco.
-5. **Ordem de validação preservada.** As mensagens de erro e sua ordem são idênticas às do
-   legado, garantindo compatibilidade com os testes de preservação.
-6. **Legado intocado.** `src/original/` permanece como referência e não é mais chamado por
-   `src/main.ts` após a refatoração.
+1. **Synchronous signature preserved.** `processTravelRequest(input): TravelRequestOutput`
+   remains synchronous (contract required by behavior preservation tests). Persistence runs
+   as *fire-and-forget* inside the use case: the result is returned immediately and the
+   write happens in the background, with isolated error handling.
+2. **What is persisted.** We store input data plus the analysis result (`status`, `travelDays`,
+   amounts). The `errors` and `warnings` fields are **not** persisted because the provided
+   `travel_requests` table has no matching columns — they belong to the output contract, not
+   the historical record.
+3. **Persistence regardless of status.** Every processed request is saved (`approved`,
+   `pending-review`, or `rejected`) as analysis history. Reprocessing the same `requestId`
+   updates the record (`INSERT ... ON CONFLICT (id) DO UPDATE`).
+4. **Dependency injection in `main.ts`.** The PostgreSQL repository is only created when
+   `DATABASE_URL` is set; otherwise, the use case runs without persistence. This keeps the
+   public contract testable without requiring a database.
+5. **Validation order preserved.** Error messages and their order match the legacy code,
+   ensuring compatibility with behavior preservation tests.
+6. **Legacy untouched.** `src/original/` remains as reference and is no longer called by
+   `src/main.ts` after refactoring.
 
-## Uso crítico de Inteligência Artificial
+## Critical use of Artificial Intelligence
 
-- **Ferramenta utilizada:** Claude Code (Anthropic, modelo Claude Opus) como assistente de
-  planejamento, geração de código e testes.
-- **Como foi usada:** apoiou o mapeamento do legado, a proposta de arquitetura em camadas
-  (documentada em [`docs/plano-desenvolvimento.md`](docs/plano-desenvolvimento.md)) e a
-  escrita incremental de código e testes por fase.
-- **Sugestões aceitas:** extração das regras para o domínio espelhando o legado; caso de uso
-  como classe para permitir injeção do repositório; persistência *fire-and-forget* para não
-  quebrar a assinatura síncrona; testes de infraestrutura com `skipIf` quando não há banco.
-- **Sugestões rejeitadas/modificadas:** criar a interface do repositório antes de haver uso
-  real foi adiado para não deixar uma camada decorativa (a porta só foi introduzida quando a
-  persistência passou a consumi-la); a decisão de não persistir `errors`/`warnings` foi
-  revisada manualmente contra o schema fornecido.
-- **Como validamos:** toda sugestão foi verificada com `npm run typecheck` e `npm test`,
-  exigindo que os testes de preservação (`tests/original/`) continuassem passando a cada
-  etapa, e a persistência foi conferida executando os testes de infraestrutura com o banco
-  ativo via Docker.
+- **Tool used:** Claude Code (Anthropic, Claude Opus model) as an assistant for planning,
+  code generation, and tests.
+- **How it was used:** supported legacy mapping, layered architecture proposal (documented in
+  [`docs/plano-desenvolvimento.md`](docs/plano-desenvolvimento.md)), and incremental code and
+  test writing by phase.
+- **Suggestions accepted:** extracting rules into the domain mirroring the legacy code; use
+  case as a class to allow repository injection; *fire-and-forget* persistence to avoid
+  breaking the synchronous signature; infrastructure tests with `skipIf` when no database is
+  available.
+- **Suggestions rejected or modified:** creating the repository interface before there was
+  real use was deferred to avoid a decorative layer (the port was introduced only when
+  persistence started consuming it); the decision not to persist `errors`/`warnings` was
+  reviewed manually against the provided schema.
+- **How we validated:** every suggestion was checked with `npm run typecheck` and `npm test`,
+  requiring behavior preservation tests (`tests/original/`) to keep passing at each step;
+  persistence was verified by running infrastructure tests with the database active via
+  Docker.
 
-## Limitações conhecidas
+## Known limitations
 
-- A persistência é *best-effort* (*fire-and-forget*): uma falha de gravação é registrada mas
-  não interrompe o retorno da análise, por decisão de manter a assinatura síncrona.
-- Os testes de infraestrutura dependem de um PostgreSQL acessível via `DATABASE_URL`; sem
-  ele, são pulados.
+- Persistence is *best-effort* (*fire-and-forget*): a write failure is logged but does not
+  interrupt the analysis response, by design to keep the synchronous signature.
+- Infrastructure tests require PostgreSQL accessible via `DATABASE_URL`; without it, they are
+  skipped.
