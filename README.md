@@ -64,6 +64,41 @@ npm test
 Com `DATABASE_URL` definida, cada chamada de `processTravelRequest` também persiste a
 solicitação processada na tabela `travel_requests`.
 
+### Conferir registros no banco (terminal)
+
+Com o Docker em execução (`npm run db:up`), liste os registros via `psql` no container:
+
+```bash
+# bash — confira o nome do container com: docker ps
+docker exec -it 20261-tec2-aval-postgres-1 psql -U postgres -d travel_requests \
+  -c "SELECT id, status, travel_days, total_amount_in_cents FROM travel_requests;"
+```
+
+```powershell
+# PowerShell
+docker exec -it 20261-tec2-aval-postgres-1 psql -U postgres -d travel_requests -c "SELECT id, status, travel_days, total_amount_in_cents FROM travel_requests;"
+```
+
+Fluxo sugerido para validar persistência:
+
+```powershell
+copy .env.example .env
+npm run db:up
+npm run db:init
+$env:DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/travel_requests"
+npm test
+docker exec -it 20261-tec2-aval-postgres-1 psql -U postgres -d travel_requests -c "SELECT id, status, travel_days, total_amount_in_cents FROM travel_requests;"
+```
+
+Após `npm test` com `DATABASE_URL`, os testes de infraestrutura deixam linhas de exemplo
+(ids `TR-TEST-*`) na tabela para conferência manual no terminal.
+
+Para limpar registros de teste localmente:
+
+```sql
+DELETE FROM travel_requests WHERE id LIKE 'TR-TEST%';
+```
+
 ## Arquitetura
 
 ```text

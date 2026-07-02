@@ -292,6 +292,7 @@ Cada fase termina com validação antes de avançar.
 | 4 — Infraestrutura e persistência | Commit 7 |
 | 5 — Testes próprios completos | Commit 8 |
 | 6 — Documentação e entrega | Commit 9 |
+| 6.1 — Inspeção manual do banco | Commit 10 |
 
 ### Fase 0 — Baseline e análise (já feito)
 
@@ -423,12 +424,27 @@ Cenários mínimos recomendados:
 
 **Ao concluir:** `### Fase 6 — Documentação e entrega (já feito)`.
 
+### Fase 6.1 — Inspeção manual do banco
+
+**Commit:** 10 — `test: keep infra test records for manual database inspection`
+
+**Objetivo:** remover cleanup (`DELETE`) dos testes de infra para permitir conferir
+registros `TR-TEST-*` no PostgreSQL após `npm test`; documentar `docker exec ... psql` no README.
+
+1. Remover `DELETE` do `afterAll` em `tests/infra/postgres-travel-request-repository.test.ts`.
+2. Atualizar `README.md` com fluxo de validação no terminal.
+3. Atualizar este plano.
+
+**Validação:** `npm test` com `DATABASE_URL` → 56/56; `SELECT` no container mostra 2 linhas.
+
+**Ao concluir:** `### Fase 6.1 — Inspeção manual do banco (já feito)`.
+
 ---
 
 ## 7. Plano de commits
 
 Mínimo exigido: **5 commits significativos em inglês**.  
-Plano recomendado: **9 commits** (baseline clonada → plano → código → docs).
+Plano original: **9 commits**. Histórico final: **10 commits** (commit 10 = inspeção manual do banco).
 
 ### 7.1 Setup manual — publicar o clone no seu GitHub (antes do Commit 1)
 
@@ -590,6 +606,21 @@ git push
 
 ---
 
+### Commit 10 — `test: keep infra test records for manual database inspection`
+
+**Arquivos:**
+- `tests/infra/postgres-travel-request-repository.test.ts` (sem `DELETE` no `afterAll`)
+- `README.md` (seção *Conferir registros no banco*)
+- `docs/plano-desenvolvimento.md`
+
+**Objetivo:** facilitar validação visual da persistência via `docker exec ... psql`.
+
+**Critério de pronto:** 56/56 com `DATABASE_URL`; `SELECT` mostra registros `TR-TEST-*`.
+
+**Ao concluir:** marcar Fase 6.1 como `(já feito)`.
+
+---
+
 ### Mapa commit → critérios de avaliação
 
 | Commit | Avaliação 1 | Avaliação 2 |
@@ -601,6 +632,7 @@ git push
 | 7 | Organização mínima | Persistência, arquitetura |
 | 8 | Testes próprios | — |
 | 9 | — | README, diagrama, commits |
+| 10 | Testes de infra | Documentação operacional |
 
 ---
 

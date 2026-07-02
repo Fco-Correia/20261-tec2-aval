@@ -10,7 +10,6 @@ const databaseUrl = process.env.DATABASE_URL;
 describe.skipIf(!databaseUrl)("PostgresTravelRequestRepository", () => {
   let pool: Pool;
   let repository: PostgresTravelRequestRepository;
-  const savedIds: string[] = [];
 
   beforeAll(() => {
     pool = createPgPool(databaseUrl);
@@ -18,11 +17,6 @@ describe.skipIf(!databaseUrl)("PostgresTravelRequestRepository", () => {
   });
 
   afterAll(async () => {
-    if (savedIds.length > 0) {
-      await pool.query("DELETE FROM travel_requests WHERE id = ANY($1)", [
-        savedIds,
-      ]);
-    }
     await pool.end();
   });
 
@@ -54,7 +48,6 @@ describe.skipIf(!databaseUrl)("PostgresTravelRequestRepository", () => {
 
   it("saves a travel request and retrieves it by id", async () => {
     const requestId = `TR-TEST-${Date.now()}`;
-    savedIds.push(requestId);
 
     await repository.save(makeInput(requestId), makeOutput(requestId));
     const saved = await repository.findById(requestId);
@@ -74,7 +67,6 @@ describe.skipIf(!databaseUrl)("PostgresTravelRequestRepository", () => {
 
   it("overwrites an existing travel request on conflicting id", async () => {
     const requestId = `TR-TEST-CONFLICT-${Date.now()}`;
-    savedIds.push(requestId);
 
     await repository.save(makeInput(requestId), makeOutput(requestId));
     await repository.save(makeInput(requestId), {
